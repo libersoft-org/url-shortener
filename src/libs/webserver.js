@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Elysia } = require('elysia');
-//const { ip } = require('elysia-ip');
+const { ip } = require('elysia-ip');
 const API = require('./api.js');
 const { Common } = require('./common.js');
 
@@ -19,7 +19,7 @@ class WebServer {
 
  async startServer() {
   const app = new Elysia()
-   //.use(ip())
+   .use(ip())
    .onRequest((req) => {
     //console.log(req);
     let url = '/' + req.request.url.split('/').slice(3).join('/');
@@ -27,8 +27,8 @@ class WebServer {
    })
    .post('/api/:name', async (req) => this.getAPI(req))
    .get('/r/:name', async (req) => this.getRedirect(req))
-   //.get('/*', async ({ ip, req }) => this.getFile(ip, req))
-   .get('/*', async (req) => this.getFile(req))
+   .get('/*', async ({ ip, req }) => this.getFile(ip, req))
+   //.get('/*', async (req) => this.getFile(req))
   const server = { fetch: app.fetch };
   if (Common.settings.web.standalone) server.port = Common.settings.web.port;
   else server.unix = Common.settings.web.socket_path;
@@ -53,10 +53,10 @@ class WebServer {
   return new Response(null, { status: 302, headers: { 'Location': link.data.link } });
  }
 
- //async getIndex(ip, req) {
- async getIndex(req) {
+ async getIndex(ip, req) {
+ //async getIndex(req) {
   console.log(req);
-  //console.log(ip);
+  console.log(ip);
   const content = await Bun.file(path.join(__dirname, '../web/index.html')).text();
   return new Response(Common.translate(content, {
    '{TITLE}': Common.settings.web.name,
